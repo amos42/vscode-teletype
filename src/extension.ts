@@ -118,7 +118,7 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('extension.teletype-signout', async () => {
-        await (globalAny.teletype as TeletypeClient).signOut();
+        (globalAny.teletype as TeletypeClient).signOut();
         vscode.commands.executeCommand('setContext', 'teletype.status.isSignin', false);
     });
     context.subscriptions.push(disposable);

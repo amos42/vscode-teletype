@@ -219,7 +219,7 @@ export default class WorkspaceManager {
         //if(this.bufferBindingsByTextDocument){
         const bufferBinding = this.getBufferBindingByBuffer(event.document);
         if (bufferBinding) {
-            event.waitUntil(bufferBinding.requestSavePromise());
+            event.waitUntil(bufferBinding.requestSaveAsnyc());
         }
         //}
     }

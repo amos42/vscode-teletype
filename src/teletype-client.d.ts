@@ -35,69 +35,38 @@ declare module '@atom/teletype-client' {
         hostPeerId: string;
         subscriptions: CompositeDisposable;
 
-        // constructor({id, uri, text, history, operations, router, hostPeerId, siteId, didDispose});
-        constructor(options: any);
+        static deserialize(message: any, props: any): any;
 
+        constructor({ id, uri, text, history, operations, router, hostPeerId, siteId, didDispose }: any);
+        dispose(): void;
         applyGroupingInterval(applyGroupingInterval: number): void;
-
-        broadcastOperations(...args: any[]): void;
-
-        broadcastURIChange(...args: any[]): void;
-
-        broadcastUpdate(...args: any[]): void;
-
-        createCheckpoint(...args: any[]): Checkpoint;
-
-        dispose(...args: any[]): void;
-
-        getChangesSinceCheckpoint(...args: any[]): void;
-
-        getHistory(...args: any[]): void;
-
-        getMarkers(...args: any[]): void;
-
-        getNextMarkerLayerId(...args: any[]): void;
-
-        groupChangesSinceCheckpoint(...args: any[]): void;
-
-        groupLastChanges(...args: any[]): void;
-
-        integrateOperations(...args: any[]): void;
-
-        onDidUpdateMarkers(...args: any[]): void;
-
-        onDidUpdateText(...args: any[]): void;
-
-        receiveFetch(...args: any[]): void;
-
-        receiveOperationsUpdate(...args: any[]): void;
-
-        receiveSave(...args: any[]): void;
-
-        receiveURIUpdate(...args: any[]): void;
-
-        receiveUpdate(...args: any[]): void;
-
-        redo(...args: any[]): any;
-
-        requestSave(...args: any[]): void;
-
+        broadcastOperations(operations: any): void;
+        broadcastURIChange(uri: any): void;
+        broadcastUpdate(updateMessage: any): void;
+        createCheckpoint(options: any): Checkpoint;
+        getChangesSinceCheckpoint(checkpoint: Checkpoint): void;
+        getHistory(): any;
+        getMarkers(): any;
+        getNextMarkerLayerId(): Number;
+        groupChangesSinceCheckpoint(checkpoint: Checkpoint, options: any): any;
+        groupLastChanges(): any;
+        integrateOperations(operations: any): void;
+        onDidUpdateMarkers(listener: Function): any;
+        onDidUpdateText(listener: Function): any;
+        receiveFetch({ requestId }: any): void;
+        receiveOperationsUpdate(operationsUpdateMessage: any): void;
+        receiveSave(): void;
+        receiveURIUpdate(uriUpdateMessage: any): void;
+        receiveUpdate({ body }: any): void;
+        requestSave(): void;
         revertToCheckpoint(checkpoint: Checkpoint, options: any): any;
-
-        serialize(...args: any[]): void;
-
+        serialize(): any;
         setDelegate(delegate: IBufferDelegate): void;
-
         setTextInRange(oldStart: Position, oldEnd: Position, newText: string): void;
-
-        setURI(...args: any[]): void;
-
-        undo(...args: any[]): any;
-
-        updateMarkers(...args: any[]): void;
-
-        static deserialize(message: any, props: any): void;
-
+        setURI(uri: any): void;
+        redo(): any | null;
+        undo(): any | null;
+        updateMarkers(markerUpdatesByLayerId: Number, broadcastOperations: Boolean): any;
     }
 
     export interface IEditorDelegate {
@@ -115,65 +84,45 @@ declare module '@atom/teletype-client' {
         bufferProxy: BufferProxy;
         portal: Portal;
 
-        constructor(...args: any[]);
+        static deserialize(message: any, props: any): any;
 
-        bufferProxyDidUpdateMarkers(...args: any[]): void;
+        constructor({ id, bufferProxy, selectionLayerIdsBySiteId, selections, router, siteId, didDispose, portal }: any);
 
-        createLocalSelectionsLayer(...args: any[]): void;
-
-        cursorPositionForSiteId(siteId: number): void;
-
+        dispose(): void;
+        bufferProxyDidUpdateMarkers(markerUpdates: any, options: any): void;
+        createLocalSelectionsLayer(selections: any): void;
+        cursorPositionForSiteId(siteId: number): any;
         didScroll(): void;
-
-        dispose(...args: any[]): void;
-
-        getLocalHiddenSelections(...args: any[]): void;
-
-        getMetadata(...args: any[]): void;
-
+        getLocalHiddenSelections(): any;
+        getMetadata(): any;
         hideSelections(): void;
-
         hostDidDisconnect(): void;
-
-        isScrollNeededToViewPosition(position: Position): void;
-
-        onDidScroll(callback: any): void;
-
-        onDidUpdateLocalSelections(callback: any): void;
-
-        onDidUpdateRemoteSelections(callback: any): void;
-
+        isScrollNeededToViewPosition(position: Position): Boolean;
+        onDidScroll(callback: Function): any;
+        onDidUpdateLocalSelections(callback: Function): any;
+        onDidUpdateRemoteSelections(callback: Function): any;
         receiveFetch({ requestId }: any): void;
-
-        receiveSelectionsUpdate(selectionsUpdate: any): void;
-
         receiveUpdate({ body }: any): void;
-
-        serialize(): void;
-
+        receiveSelectionsUpdate(selectionsUpdate: any): void;
+        serialize(): any;
         setDelegate(delegate: IEditorDelegate): void;
-
         showSelections(): void;
-
         siteDidDisconnect(siteId: number): void;
-
         updateSelections(updates: any[], options: any): void;
-
-        static deserialize(message: any, props: any): void;
-
     }
 
     export class EditorProxyMetadata {
-        constructor(...args: any[]);
+        id: string;
+        bufferProxyId: string;
+        bufferProxyURI: any;
 
-        dispose(...args: any[]): void;
+        static deserialize(message: any, props: any): any;
 
-        receiveBufferUpdate(...args: any[]): void;
+        constructor({ id, bufferProxyId, bufferProxyURI, siteId, router, didDispose }: any);
 
-        serialize(...args: any[]): void;
-
-        static deserialize(message: any, props: any): void;
-
+        dispose(): void;
+        receiveBufferUpdate({ body }: any): void;
+        serialize(): any;
     }
 
     export class PeerConnection {
@@ -192,55 +141,36 @@ declare module '@atom/teletype-client' {
         sendSignal(signal: any): void;
 
         // handleConnectionStateChange(): void;
-        // handleDataChannel(opts: any): void;
+        // handleDataChannel({channel}: any): void;
         // handleError(event: any): void;
         // /*async*/ handleNegotiationNeeded(): Promise<void>;
-        // /*async*/ handleICECandidate(opts: any): Promise<void>;
+        // /*async*/ handleICECandidate({candidate}: any): Promise<void>;
     }
 
     export class PeerPool {
-        constructor(...args: any[]);
+        constructor({ peerId, peerIdentity, restGateway, pubSubGateway, fragmentSize, connectionTimeout, testEpoch }: any);
 
-        connectTo(...args: any[]): void;
-
-        didDisconnect(...args: any[]): void;
-
-        didReceiveMessage(...args: any[]): void;
-
-        didReceiveSignal(...args: any[]): void;
-
+        /*async*/ initialize(): Promise<void>;
+        dispose(): void;
+        /*async*/ connectTo(peerId: string): Promise<void>;
         disconnect(...args: any[]): void;
-
-        dispose(...args: any[]): void;
-
-        fetchICEServers(...args: any[]): void;
-
+        /*async*/ fetchICEServers(): Promise<void>;
+        /*async*/ listen(): Promise<void>;
         getConnectedPromise(peerId: String): Promise<any>;
-
         getDisconnectedPromise(peerId: String): Promise<any>;
+        getLocalPeerIdentity(): any;
+        getPeerConnection(peerId: string): any;
+        getPeerIdentity(peerId: string): any;
+        isConnectedToPeer(peerId: string): Boolean;
+        onDisconnection(callback: Function): any;
+        onError(callback: Function): any;
+        onReceive(callback: Function): any;
+        peerConnectionDidError({ peerId, event }: any): void;
+        send(peerId: String, message: any): void;
 
-        getLocalPeerIdentity(...args: any[]): void;
-
-        getPeerConnection(...args: any[]): void;
-
-        getPeerIdentity(...args: any[]): void;
-
-        initialize(...args: any[]): void;
-
-        isConnectedToPeer(...args: any[]): void;
-
-        listen(...args: any[]): void;
-
-        onDisconnection(...args: any[]): void;
-
-        onError(...args: any[]): void;
-
-        onReceive(...args: any[]): void;
-
-        peerConnectionDidError(...args: any[]): void;
-
-        send(...args: any[]): void;
-
+        didDisconnect(peerId: string): void;
+        didReceiveMessage(event: any): void;
+        didReceiveSignal(message: any): void;
     }
 
     export interface IPortalDelegate {
@@ -265,21 +195,19 @@ declare module '@atom/teletype-client' {
         bufferProxiesById: Map<string, BufferProxy>;
         activeEditorProxiesBySiteId: Map<number, EditorProxy>;
 
-        constructor(...args: any[]);
+        constructor({ id, hostPeerId, siteId, peerPool, connectionTimeout, tetherDisconnectWindow }: any);
 
+        dispose(): void;
+        /*async*/ initialize(): Promise<void>;
+        /*async*/ join(): Promise<void>;
         activateEditorProxy(editorProxy: EditorProxy | null | undefined): void;
+        activeEditorDidScroll(): void;
+        activeEditorDidUpdateLocalSelections({ initialUpdate, isRmoteChange }: any): void;
+        activeEditorDidUpdateRemoteSelections({ selectionLayerIdsBySiteId, initialUpdate }: any): void;
+        activeEditorDidUpdateText({ remote }: any): void;
+        activeEditorProxyForSiteId(siteId: string): any;
 
-        activeEditorDidScroll(...args: any[]): void;
-
-        activeEditorDidUpdateLocalSelections(...args: any[]): void;
-
-        activeEditorDidUpdateRemoteSelections(...args: any[]): void;
-
-        activeEditorDidUpdateText(...args: any[]): void;
-
-        activeEditorProxyForSiteId(...args: any[]): void;
-
-        assignNewSiteId(...args: any[]): void;
+        assignNewSiteId(peerId: string): void;
 
         bindPeerIdToSiteId(...args: any[]): void;
 
@@ -297,100 +225,54 @@ declare module '@atom/teletype-client' {
 
         deserializeEditorProxyMetadata(message: any): void;
 
-        didChangeTetherState(changeState: any): void;
-
-        dispose(): void;
-
         extendTether(): void;
 
-        fetchBufferProxy(id: string): void;
-
-        fetchEditorProxy(id: string): void;
-
-        findOrFetchBufferProxy(id: string): void;
-
-        findOrFetchEditorProxy(id: string): EditorProxy;
+        /*async*/ fetchBufferProxy(id: string): Promise<BufferProxy | undefined>;
+        /*async*/ findOrFetchBufferProxy(id: string): Promise<BufferProxy | undefined>;
+        /*async*/ fetchEditorProxy(id: string): Promise<EditorProxy | undefined>;
+        /*async*/ findOrFetchEditorProxy(id: string): Promise<EditorProxy | undefined>;
 
         follow(siteId: number): void;
-
-        getActiveSiteIds(): string[];
-
-        getEditorProxiesMetadata(): any[];
-
-        getEditorProxyMetadata(editorProxyId: string): any;
-
-        getFollowedSiteId(): number;
-
-        getLocalActiveEditorProxy(): EditorProxy;
-
-        getLocalSiteId(): number;
-
-        getSiteIdentity(siteId: number): IMemberIdentify;
-
-        initialize(): void;
-
-        join(): void;
-
-        leaderDidUpdate(...args: any[]): void;
-
-        receiveEditorProxyCreation(...args: any[]): void;
-
-        receiveEditorProxySwitch(...args: any[]): void;
-
-        receiveSiteAssignment(...args: any[]): void;
-
-        receiveSubscription(...args: any[]): void;
-
-        receiveTetherUpdate(...args: any[]): void;
-
-        receiveUpdate(...args: any[]): void;
-
-        resolveFollowState(...args: any[]): number;
-
-        resolveLeaderPosition(...args: any[]): void;
-
-        resolveLeaderSiteId(...args: any[]): void;
-
-        retractOrDisconnectTether(...args: any[]): void;
-
-        retractTether(...args: any[]): void;
-
-        sendSubscriptionResponse(...args: any[]): void;
-
-        /*async*/ setDelegate(delegate: IPortalDelegate): Promise<void>;
-
-        setFollowState(...args: any[]): void;
-
-        siteDidLeave(...args: any[]): void;
-
-        subscribeToEditorProxyChanges(...args: any[]): void;
-
         unfollow(): void;
-
+        getActiveSiteIds(): string[];
+        getEditorProxiesMetadata(): EditorProxyMetadata[];
+        getEditorProxyMetadata(editorProxyId: string): EditorProxyMetadata;
+        getFollowedSiteId(): number;
+        getLocalActiveEditorProxy(): EditorProxy;
+        getLocalSiteId(): number;
+        getSiteIdentity(siteId: number): IMemberIdentify;
+        receiveEditorProxyCreation(editorProxyCreationMessage: any): void;
+        /*async*/ receiveEditorProxySwitch(senderSiteId: String, editorProxySwitch: any): Promise<void>;
+        receiveSiteAssignment(siteAssignment: any): void;
+        receiveSubscription({ senderId, requestId }: any): void;
+        receiveTetherUpdate(tetherUpdate: any): void;
+        /*async*/ receiveUpdate({ senderId, body }: any): Promise<void>;
+        resolveFollowState(followerId: string): number;
+        resolveLeaderPosition(followerId: string): Position;
+        resolveLeaderSiteId(followerId: string): string;
+        retractTether(): void;
+        sendSubscriptionResponse(requestId: string): void;
+        /*async*/ setDelegate(delegate: IPortalDelegate): Promise<void>;
+        siteDidLeave({ peerId, connectionLost }: any): void;
+        subscribeToEditorProxyChanges(editorProxy: EditorProxy): void;
         updateActivePositions(positionsBySiteId: UpdatePosition[]): void;
 
+        didChangeTetherState({ oldResolvedState, oldResolvedLeaderId, newResolvedState, newResolvedLeaderId }: any): void;
     }
 
     export class PubSubSignalingProvider {
-        constructor(...args: any[]);
+        constructor({ localPeerId, remotePeerId, restGateway, testEpoch }: any);
 
-        connect(...args: any[]): void;
-
-        disconnect(...args: any[]): void;
-
-        subscribe(...args: any[]): void;
-
+        /*async*/ send(signal: any): Promise<void>;
+        /*async*/ receiveMessage({ testEpoch, sequenceNumber, signal }: any): Promise<void>;
     }
 
     export class PusherPubSubGateway {
-        constructor(...args: any[]);
+        constructor({key, options}: any);
 
-        connect(...args: any[]): void;
-
-        disconnect(...args: any[]): void;
-
-        subscribe(...args: any[]): void;
-
+        /*async*/ connect(...args: any[]): Promise<any>;
+        disconnect(): void;
+        /*async*/ subscribe (channelName: string, eventName: string, callback: Function): Promise<void>;
     }
 
     export class RestGateway {
@@ -496,20 +378,20 @@ declare module '@atom/teletype-client' {
     }
 
     export class TeletypeClient {
-        constructor(options: any);
+        constructor({restGateway, pubSubGateway, connectionTimeout, tetherDisconnectWindow, testEpoch, pusherKey, pusherOptions, baseURL, didCreateOrJoinPortal}: any);
 
-        createPortal(): Portal;
         dispose(): void;
+        /*async*/ initialize(): Promise<void>;
+        /*async*/ signIn(oauthToken: string): Promise<boolean>;
+        signOut(): boolean;
+        /*async*/ createPortal(): Promise<Portal>;
+        /*async*/ joinPortal(id: String): Promise<Portal>;
         getClientId(): String;
         getLocalUserIdentity(): PeerPool | null;
-        /*async*/ initialize(): Promise<void>;
         isSignedIn(): boolean;
-        /*async*/ joinPortal(id: String): Promise<Portal>;
         onConnectionError(callback: Function): void;
         onSignInChange(callback: Function): void;
         peerPoolDidError(error: any): void;
-        signIn(oauthToken: string): boolean;
-        signOut(): boolean;
     }
 
     export const FollowState: {

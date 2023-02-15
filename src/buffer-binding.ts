@@ -16,7 +16,6 @@ export interface IBufferProxyExt {
 }
 
 export default class BufferBinding extends vscode.Disposable implements IBufferDelegate {
-    // public uri: vscode.Uri;
     // public title: string | undefined;
     public bufferProxy!: BufferProxy;
     public portal!: Portal;
@@ -46,9 +45,7 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
         // this.bufferProxy = bufferProxy;
 
         this.portal = portal;
-        // this.path = path ?? buffer.uri.toString();
         // this.title = title ?? uri;
-        // this.isHost = isHost;
         this.pendingChanges = [];
         this.disposed = false;
         this.disableHistory = false;
@@ -75,8 +72,8 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
 
             // this.subscriptions.dispose();
             // if (this.buffer) {
-            // this.buffer.restoreDefaultHistoryProvider(this.bufferProxy.getHistory(this.buffer.maxUndoEntries));
-            // this.buffer = undefined;
+            //  this.buffer.restoreDefaultHistoryProvider(this.bufferProxy.getHistory(this.buffer.maxUndoEntries));
+            //  this.buffer = undefined;
             // }
             if (this.bufferDestroySubscription) { this.bufferDestroySubscription.dispose(); }
             if (this.remoteFile) { this.remoteFile.dispose(); }
@@ -117,7 +114,9 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
     setBufferProxy(bufferProxy: BufferProxy) {
         this.bufferProxy = bufferProxy;
 
-        // // this.buffer?.setHistoryProvider(this);
+        // VSCode의 TextDocument는 History 기능이 없다.
+        // this.buffer?.setHistoryProvider(this);
+
         while (this.pendingChanges.length > 0) {
             this.pushChange(this.pendingChanges.shift());
         }
@@ -143,9 +142,9 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
     // @override
     setText(text: string): void {
         this.disableHistory = true;
+        // VSCode의 경우, TextDocument의 초기 문자열을 이벤트 없이 변경할 수가 없다. 그래서 아예 파일을 직접 수정해야 한다.
         // this.buffer?.setTextInRange(this.buffer?.getRange(), text);
         if (this.fsFullPathUri) {
-            // fs.writeFileSync(this.fsPath, text);
             this.fs.writeFile(this.fsFullPathUri, new TextEncoder().encode(text), { create: true, overwrite: true });
         }
         this.disableHistory = false;
@@ -183,13 +182,7 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
         this.disableHistory = true;
         for (const textUpdate of this.pendingUpdates) {
             await editor.edit(builder => {
-                // if (!textUpdate.newText && textUpdate.oldStart !== textUpdate.oldEnd) {
-                //   builder.delete(this.createRange(textUpdate.oldStart, textUpdate.oldEnd));
-                // } else if(textUpdate.oldStart === textUpdate.oldEnd) {
-                //   builder.insert(this.createPosition(textUpdate.oldStart), textUpdate.newText);
-                // } else {
                 builder.replace(this.createRange(textUpdate.oldStart, textUpdate.oldEnd), textUpdate.newText);
-                //}
             }); //}, {undoStopBefore: true, undoStopAfter: true});
         }
         this.disableHistory = false;
@@ -203,12 +196,16 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
         if (!textUpdates || textUpdates.length <= 0) { return; }
         console.log(textUpdates);
 
-        // if (!this.buffer) { return; }
-        // if (this.buffer.isClosed) { return; }
+        if (!this.buffer) { return; }
+        if (this.buffer.isClosed) { return; }
 
         try {
             textUpdates.forEach(textUpdate => {
+                // VSCode의 경우엔 TextDocument의 History 기능이 없다.
                 // this.bufferHistory.push(textUpdate.oldStart, textUpdate.oldEnd, textUpdate.newText);
+
+                // VSCode의 경우, 정책적으로 눈에 보이지 않는 곳에서 에디터의 내용을 변경하지 못 하도록 되어 있다.
+                // 때문에 문자열의 변경을 일단 버퍼에 쌓아두고, 에디터 편집이 가능할 때까지 적용을 지연시킨다.
                 this.pendingUpdates.push({ oldStart: textUpdate.oldStart, oldEnd: textUpdate.oldEnd, newText: textUpdate.newText });
             });
             this.emitter.emit('require-update', this);
@@ -308,7 +305,7 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
     save(): void {
         // 수신이 완료됨
         //if (this.buffer?.uri) { 
-        //this.buffer.save();
+        //  this.buffer.save();
         //}
         this.emitter.emit('did-save', this);
     }
@@ -368,10 +365,8 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
     }
 
     //requestSavePromise(): Promise<vscode.TextEditor[]> {
-    requestSavePromise(): Promise<void> {
-        return new Promise(() => {
-            this.bufferProxy.requestSave();
-        });
+    async requestSaveAsnyc() {
+        return this.bufferProxy.requestSave();
     }
 
     // bufferProxy를 monkey patch 한다.

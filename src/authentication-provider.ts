@@ -17,9 +17,7 @@ export class AuthenticationProvider {
         this.notificationManager = notificationManager;
         this.emitter = new EventEmitter();
 
-        this.client.onSignInChange(() => {
-            this.emitter.emit('did-change');
-        });
+        this.client.onSignInChange(this.didChangeSignIn.bind(this));
     }
 
     public async signInUsingSavedTokenAsync(): Promise<boolean> {
@@ -90,6 +88,6 @@ export class AuthenticationProvider {
     }
 
     private didChangeSignIn(): void {
-
+        this.emitter.emit('did-change');
     }
 }

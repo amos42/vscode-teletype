@@ -1,286 +1,285 @@
 {
-	"name": "vscode-teletype",
-	"displayName": "vscode-teletype",
-	"description": "VS Code Teletype extension for Creating CoEditing skeleton for Eclipse Che and Theia",
-	"types": "dist/index.d.ts",
-	"publisher": "redhat",
-	"version": "0.0.1",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/amos42/vscode-teletype.git"
-	},
-	"engines": {
-		"vscode": "^1.50.0"
-	},
-	"enabledApiProposals": [
-		"contribViewsWelcome"
-	],
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"onView:teletype.accountsView",
-		"onCommand:extension.teletype-signin",
-		"onCommand:extension.teletype-signout",
-		"onCommand:extension.share-portal",
-		"onCommand:extension.close-host-portal",
-		"onCommand:extension.copy-portal-url",
-		"onCommand:extension.join-portal",
-		"onCommand:extension.leave-portal",
-		"onCommand:extension.follow-portal",
-		"onCommand:extension.unfollow-portal",
-		"onCommand:extension.test"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "extension.teletype-about",
-				"title": "About Teletype"
-			},
-			{
-				"command": "extension.teletype-signin",
-				"title": "SignIn Teletype"
-			},
-			{
-				"command": "extension.teletype-signout",
-				"title": "SignOut Teletype"
-			},
-			{
-				"command": "extension.join-portal",
-				"title": "Join Portal"
-			},
-			{
-				"command": "extension.leave-portal",
-				"title": "Leave Portal"
-			},
-			{
-				"command": "extension.share-portal",
-				"title": "Share Portal"
-			},
-			{
-				"command": "extension.close-host-portal",
-				"title": "Close Host Portal"
-			},
-			{
-				"command": "extension.copy-portal-url",
-				"title": "Copy Portal URL to Clipboard",
-				"icon": "$(explorer-view-icon)"
-			},
-			{
-				"command": "extension.show-editor",
-				"title": "Show Editor"
-			},
-			{
-				"command": "extension.follow-portal",
-				"title": "Follow Portal",
-				"icon": "$(sync)"
-			},
-			{
-				"command": "extension.unfollow-portal",
-				"title": "Unfollow Portal",
-				"icon": "$(sync-ignored)"
-			},
-			{
-				"command": "extension.test",
-				"title": "test"
-			}
-		],
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "teletype",
-					"title": "Teletype",
-					"icon": "resources/teletype.svg"
-				}
-			]
-		},
-		"views": {
-			"teletype": [
-				{
-					"id": "teletype.accountsView",
-					"name": "Teletype Accounts",
-					"icon": "resources/teletype.svg",
-					"contextualTitle": "Teletype Accounts"
-				},
-				{
-					"id": "teletype.targetDocumentView",
-					"name": "Teletype Target Documents",
-					"icon": "resources/teletype.svg",
-					"contextualTitle": "Teletype Target Documents"
-				}
-			]
-		},
-		"configuration": {
-			"title": "Teletype",
-			"properties": {
-				"teletype.settings.apiHostUrl": {
-					"type": "string",
-					"default": "https://api.teletype.atom.io",
-					"description": "API Host Url"
-				},
-				"teletype.settings.authToken": {
-					"type": "string",
-					"default": "",
-					"description": "Auth Token"
-				},
-				"teletype.settings.pusher.wsHost": {
-					"type": "string",
-					"default": "",
-					"description": "Pusher WebSocket Host"
-				},
-				"teletype.settings.pusher.wsPort": {
-					"type": "string",
-					"default": "",
-					"description": "Pusher WebSocket Port"
-				},
-				"teletype.settings.pusher.key": {
-					"type": "string",
-					"default": "f119821248b7429bece3",					            
-					"description": "Pusher Key"
-				},
-				"teletype.settings.pusher.cluster": {
-					"type": "string",
-					"default": "mt1",
-					"description": "Pusher Cluster"
-				}
-			}
-		},
-		"viewsWelcome": [
-			{
-				"view": "teletype.accountsView",
-				"contents": "No Singned. [get auth token](https://teletype.atom.io/login).\n[SignIn Teletype](command:extension.teletype-signin)"
-			}
-		],
-		"menus": {
-			"view/title": [
-				{
-					"command": "extension.teletype-about",
-					"when": "view == teletype.accountsView",
-					"group": "about"
-				},
-				{
-					"command": "extension.teletype-signin",
-					"when": "view == teletype.accountsView && !teletype.status.isSignin",
-					"group": "identify"
-				},
-				{
-					"command": "extension.teletype-signout",
-					"when": "view == teletype.accountsView && teletype.status.isSignin",
-					"group": "identify"
-				},
-				{
-					"command": "extension.share-portal",
-					"when": "view == teletype.accountsView && teletype.status.isSignin && !teletype.status.isShared",
-					"group": "portal"
-				},
-				{
-					"command": "extension.close-host-portal",
-					"when": "view == teletype.accountsView && teletype.status.isSignin && teletype.status.isShared",
-					"group": "portal"
-				},
-				{
-					"command": "extension.copy-portal-url",
-					"when": "view == teletype.accountsView && teletype.status.isSignin && teletype.status.isShared",
-					"group": "portal"
-				},
-				{
-					"command": "extension.join-portal",
-					"when": "view == teletype.accountsView && teletype.status.isSignin",
-					"group": "portal"
-				}
-			],
-			"view/item/context": [
-				{
-					"command": "extension.teletype-signout",
-					"when": "view == teletype.accountsView && viewItem == teletype.Identify",
-					"group": "identify"
-				},
-				{
-					"command": "extension.share-portal",
-					"when": "view == teletype.accountsView && viewItem == teletype.Identify && !teletype.status.isShared",
-					"group": "portal"
-				},
-				{
-					"command": "extension.close-host-portal",
-					"when": "view == teletype.accountsView && viewItem == teletype.Host",
-					"group": "portal"
-				},
-				{
-					"command": "extension.copy-portal-url",
-					"when": "view == teletype.accountsView && viewItem == teletype.Host",
-					"group": "portal"
-				},
-				{
-					"command": "extension.copy-portal-url",
-					"when": "view == teletype.accountsView && viewItem == teletype.Host",
-					"group": "inline"
-				},
-				{
-					"command": "extension.join-portal",
-					"when": "view == teletype.accountsView && viewItem == teletype.Identify",
-					"group": "portal"
-				},
-				{
-					"command": "extension.leave-portal",
-					"when": "view == teletype.accountsView && viewItem == teletype.Guest",
-					"group": "portal"
-				},
-				{
-					"command": "extension.follow-portal",
-					"when": "view == teletype.accountsView && viewItem == teletype.FollowableMember",
-					"group": "portal"
-				},
-				{
-					"command": "extension.follow-portal",
-					"when": "view == teletype.accountsView && viewItem == teletype.FollowableMember",
-					"group": "inline"
-				},
-				{
-					"command": "extension.unfollow-portal",
-					"when": "view == teletype.accountsView && viewItem == teletype.FollowedMember",
-					"group": "portal"
-				},
-				{
-					"command": "extension.unfollow-portal",
-					"when": "view == teletype.accountsView && viewItem == teletype.FollowedMember",
-					"group": "inline"
-				}
-			]
-		}
-	},
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"postinstall": "node ./node_modules/vscode/bin/install",
-		"test": "npm run compile && node ./node_modules/vscode/bin/test",
-		"package": "vsce package"
-	},
-	"devDependencies": {
-		"@types/mocha": "^2.2.42",
-		"@types/node": "^10.17.24",
-		"@types/event-kit": "^2.4.1",
-		"@mapbox/node-pre-gyp": "^1.0.10",
-		"deep-equal": "^1.1.1",
-		"google-protobuf": "^3.12.2",
-		"source-map-loader": "^0.2.4",
-		"typescript": "^4.8.4",
-		"tslint": "^5.20.1",
-		"vsce": "<2.0.0",
-		"vscode": "^1.1.37",
-		"webpack": "^4.43.0",
-		"webpack-cli": "^4.9.2"
-	},
-	"dependencies": {
-		"@atom/teletype-client": "github:amos42/teletype-client.git#v0.38.5",
-		"domexception": "^4.0.0",
-		"keytar": "^7.9.0",
-		"memfs": "^3.4.7",
-		"mkdirp-promise": "^5.0.1",
-		"node-fetch": "^2.6.7",
-		"wrtc": "^0.4.7"
-	},
-	"bundledDependencies": [ 
-    ]
+    "name": "vscode-teletype",
+    "displayName": "vscode-teletype",
+    "description": "VS Code Teletype extension for Creating CoEditing skeleton for Eclipse Che and Theia",
+    "types": "dist/index.d.ts",
+    "publisher": "redhat",
+    "version": "0.0.1",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/amos42/vscode-teletype.git"
+    },
+    "engines": {
+        "vscode": "^1.50.0"
+    },
+    "enabledApiProposals": [
+        "contribViewsWelcome"
+    ],
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onView:teletype.accountsView",
+        "onCommand:extension.teletype-signin",
+        "onCommand:extension.teletype-signout",
+        "onCommand:extension.share-portal",
+        "onCommand:extension.close-host-portal",
+        "onCommand:extension.copy-portal-url",
+        "onCommand:extension.join-portal",
+        "onCommand:extension.leave-portal",
+        "onCommand:extension.follow-portal",
+        "onCommand:extension.unfollow-portal",
+        "onCommand:extension.test"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "extension.teletype-about",
+                "title": "About Teletype"
+            },
+            {
+                "command": "extension.teletype-signin",
+                "title": "SignIn Teletype"
+            },
+            {
+                "command": "extension.teletype-signout",
+                "title": "SignOut Teletype"
+            },
+            {
+                "command": "extension.join-portal",
+                "title": "Join Portal"
+            },
+            {
+                "command": "extension.leave-portal",
+                "title": "Leave Portal"
+            },
+            {
+                "command": "extension.share-portal",
+                "title": "Share Portal"
+            },
+            {
+                "command": "extension.close-host-portal",
+                "title": "Close Host Portal"
+            },
+            {
+                "command": "extension.copy-portal-url",
+                "title": "Copy Portal URL to Clipboard",
+                "icon": "$(explorer-view-icon)"
+            },
+            {
+                "command": "extension.show-editor",
+                "title": "Show Editor"
+            },
+            {
+                "command": "extension.follow-portal",
+                "title": "Follow Portal",
+                "icon": "$(sync)"
+            },
+            {
+                "command": "extension.unfollow-portal",
+                "title": "Unfollow Portal",
+                "icon": "$(sync-ignored)"
+            },
+            {
+                "command": "extension.test",
+                "title": "test"
+            }
+        ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "teletype",
+                    "title": "Teletype",
+                    "icon": "resources/teletype.svg"
+                }
+            ]
+        },
+        "views": {
+            "teletype": [
+                {
+                    "id": "teletype.accountsView",
+                    "name": "Teletype Accounts",
+                    "icon": "resources/teletype.svg",
+                    "contextualTitle": "Teletype Accounts"
+                },
+                {
+                    "id": "teletype.targetDocumentView",
+                    "name": "Teletype Target Documents",
+                    "icon": "resources/teletype.svg",
+                    "contextualTitle": "Teletype Target Documents"
+                }
+            ]
+        },
+        "configuration": {
+            "title": "Teletype",
+            "properties": {
+                "teletype.settings.apiHostUrl": {
+                    "type": "string",
+                    "default": "https://api.teletype.atom.io",
+                    "description": "API Host Url"
+                },
+                "teletype.settings.authToken": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Auth Token"
+                },
+                "teletype.settings.pusher.wsHost": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Pusher WebSocket Host"
+                },
+                "teletype.settings.pusher.wsPort": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Pusher WebSocket Port"
+                },
+                "teletype.settings.pusher.key": {
+                    "type": "string",
+                    "default": "f119821248b7429bece3",
+                    "description": "Pusher Key"
+                },
+                "teletype.settings.pusher.cluster": {
+                    "type": "string",
+                    "default": "mt1",
+                    "description": "Pusher Cluster"
+                }
+            }
+        },
+        "viewsWelcome": [
+            {
+                "view": "teletype.accountsView",
+                "contents": "No Singned. [get auth token](https://teletype.atom.io/login).\n[SignIn Teletype](command:extension.teletype-signin)"
+            }
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "extension.teletype-about",
+                    "when": "view == teletype.accountsView",
+                    "group": "about"
+                },
+                {
+                    "command": "extension.teletype-signin",
+                    "when": "view == teletype.accountsView && !teletype.status.isSignin",
+                    "group": "identify"
+                },
+                {
+                    "command": "extension.teletype-signout",
+                    "when": "view == teletype.accountsView && teletype.status.isSignin",
+                    "group": "identify"
+                },
+                {
+                    "command": "extension.share-portal",
+                    "when": "view == teletype.accountsView && teletype.status.isSignin && !teletype.status.isShared",
+                    "group": "portal"
+                },
+                {
+                    "command": "extension.close-host-portal",
+                    "when": "view == teletype.accountsView && teletype.status.isSignin && teletype.status.isShared",
+                    "group": "portal"
+                },
+                {
+                    "command": "extension.copy-portal-url",
+                    "when": "view == teletype.accountsView && teletype.status.isSignin && teletype.status.isShared",
+                    "group": "portal"
+                },
+                {
+                    "command": "extension.join-portal",
+                    "when": "view == teletype.accountsView && teletype.status.isSignin",
+                    "group": "portal"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "extension.teletype-signout",
+                    "when": "view == teletype.accountsView && viewItem == teletype.Identify",
+                    "group": "identify"
+                },
+                {
+                    "command": "extension.share-portal",
+                    "when": "view == teletype.accountsView && viewItem == teletype.Identify && !teletype.status.isShared",
+                    "group": "portal"
+                },
+                {
+                    "command": "extension.close-host-portal",
+                    "when": "view == teletype.accountsView && viewItem == teletype.Host",
+                    "group": "portal"
+                },
+                {
+                    "command": "extension.copy-portal-url",
+                    "when": "view == teletype.accountsView && viewItem == teletype.Host",
+                    "group": "portal"
+                },
+                {
+                    "command": "extension.copy-portal-url",
+                    "when": "view == teletype.accountsView && viewItem == teletype.Host",
+                    "group": "inline"
+                },
+                {
+                    "command": "extension.join-portal",
+                    "when": "view == teletype.accountsView && viewItem == teletype.Identify",
+                    "group": "portal"
+                },
+                {
+                    "command": "extension.leave-portal",
+                    "when": "view == teletype.accountsView && viewItem == teletype.Guest",
+                    "group": "portal"
+                },
+                {
+                    "command": "extension.follow-portal",
+                    "when": "view == teletype.accountsView && viewItem == teletype.FollowableMember",
+                    "group": "portal"
+                },
+                {
+                    "command": "extension.follow-portal",
+                    "when": "view == teletype.accountsView && viewItem == teletype.FollowableMember",
+                    "group": "inline"
+                },
+                {
+                    "command": "extension.unfollow-portal",
+                    "when": "view == teletype.accountsView && viewItem == teletype.FollowedMember",
+                    "group": "portal"
+                },
+                {
+                    "command": "extension.unfollow-portal",
+                    "when": "view == teletype.accountsView && viewItem == teletype.FollowedMember",
+                    "group": "inline"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test",
+        "package": "vsce package"
+    },
+    "devDependencies": {
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^10.17.24",
+        "@types/event-kit": "^2.4.1",
+        "@mapbox/node-pre-gyp": "^1.0.10",
+        "deep-equal": "^1.1.1",
+        "google-protobuf": "^3.12.2",
+        "source-map-loader": "^0.2.4",
+        "typescript": "^4.8.4",
+        "tslint": "^5.20.1",
+        "vsce": "<2.0.0",
+        "vscode": "^1.1.37",
+        "webpack": "^4.43.0",
+        "webpack-cli": "^4.9.2"
+    },
+    "dependencies": {
+        "@atom/teletype-client": "github:amos42/teletype-client.git#v0.38.5",
+        "domexception": "^4.0.0",
+        "keytar": "^7.9.0",
+        "memfs": "^3.4.7",
+        "mkdirp-promise": "^5.0.1",
+        "node-fetch": "^2.6.7",
+        "wrtc": "^0.4.7"
+    },
+    "bundledDependencies": []
 }

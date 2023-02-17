@@ -40,7 +40,7 @@ export class EditorNodeProvider implements vscode.TreeDataProvider<Dependency> {
                     const binding = this.workspaceManager.getBufferBindingByBufferProxy(a);
                     if (binding) {
                         let pathName = binding.filePath ?? binding.fsFullPathUri?.toString() ?? '';
-                        if (binding.pendingUpdates?.length > 0) {
+                        if (binding.existsPendingUpdate()) {
                             pathName += ' *';
                         }
                         lst.push(new Dependency(pathName, binding.fsFullPathUri, true));
@@ -59,7 +59,7 @@ export class EditorNodeProvider implements vscode.TreeDataProvider<Dependency> {
                         const binding = this.workspaceManager.getBufferBindingByBufferProxy(a);
                         if (binding) {
                             let pathName = binding.filePath ?? binding.fsFullPathUri?.toString() ?? '';
-                            if (binding.pendingUpdates?.length > 0) {
+                            if (binding.existsPendingUpdate()) {
                                 pathName += ' *';
                             }
                             lst.push(new Dependency(pathName, binding.fsFullPathUri));

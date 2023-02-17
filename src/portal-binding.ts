@@ -12,14 +12,12 @@ export interface IPortalBinding {
 
 export class PortalBinding extends vscode.Disposable implements IPortalBinding, IPortalDelegate {
     portal?: Portal;
-    // lastUpdateTetherPromise: Promise<void>;
     emitter: EventEmitter;
     private resIdxTable: Array<Number | undefined>;
 
     constructor(public client: TeletypeClient, public workspaceManager: WorkspaceManager, public notificationManager: NotificationManager, didDispose: Function) {
         super(didDispose);
 
-        // this.lastUpdateTetherPromise = Promise.resolve();
         this.emitter = new EventEmitter();
 
         this.resIdxTable = [undefined, undefined, undefined];
@@ -62,7 +60,7 @@ export class PortalBinding extends vscode.Disposable implements IPortalBinding, 
                 const getBufferBindingFunc = (proxy as unknown as IBufferProxyExt)?.getBufferBinding;
                 if (getBufferBindingFunc) {
                     const bufferBinding = getBufferBindingFunc();
-                    if (bufferBinding?.pendingUpdates?.length > 0) {
+                    if (bufferBinding?.existsPendingUpdate()) {
                         const reply = await this.notificationManager.confirmAsync('There are changes that have not been reflected yet.\nAre you sure you want to quit?');
                         if (!reply) { return; }
                     }
@@ -155,18 +153,25 @@ export class PortalBinding extends vscode.Disposable implements IPortalBinding, 
     }
 
     // @override
-    // async updateTether (followState: number, editorProxy: EditorProxy, position: Position) {
-    //     if (editorProxy) {
-    //         // this.lastUpdateTetherPromise = this.lastUpdateTetherPromise.then(() => {
-    //             await this._updateTether(followState, editorProxy, position);
-    //         // });
-    //     }
+    async updateTether(followState: number, editorProxy: EditorProxy, position: Position) {
+        if (!editorProxy) { return; }
 
-    //     // return this.lastUpdateTetherPromise;
-    // }
-
-    // async _updateTether (followState: number, editorProxy: EditorProxy, position: Position) {
-    // }
+        if (followState === FollowState.RETRACTED) {
+            // this.shouldRelayActiveEditorChanges = false;
+            const editorBinding = this.workspaceManager.getEditorBindingByEditorProxy(editorProxy);
+            // await vscode.workspace.openTextDocument(editorBinding?.editor, {searchAllPanes: true});
+            if (editorBinding && position) {
+                // editorBinding.updateTether(followState, position); 
+            }
+            // this.shouldRelayActiveEditorChanges = true;
+        } else {
+            //if (position) { 
+            //this.workspaceManager.getEditorBindings().forEach(editorBinding => {
+            // editorBinding.updateTether(followState, position);
+            //});
+            //}
+        }
+    }
 
     // Private
     // async _updateTether (followState: number, editorProxy: EditorProxy, position: Position) {
@@ -193,24 +198,6 @@ export class PortalBinding extends vscode.Disposable implements IPortalBinding, 
     //     }
     // }
 
-    // @override
-    async updateTether(followState: number, editorProxy: EditorProxy, position: Position) {
-        if (!editorProxy) { return; }
-
-        if (followState === FollowState.RETRACTED) {
-            const editorBinding = this.workspaceManager.getEditorBindingByEditorProxy(editorProxy);
-            // await vscode.workspace.openTextDocument(editorBinding?.editor, {searchAllPanes: true});
-            if (editorBinding && position) {
-                // editorBinding.updateTether(followState, position); 
-            }
-        } else {
-            //if (position) { 
-            //this.workspaceManager.getEditorBindings().forEach(editorBinding => {
-            // editorBinding.updateTether(followState, position);
-            //});
-            //}
-        }
-    }
 
     onDidChange(callback: (event: any) => void) {
         return this.emitter.on('did-change', callback);

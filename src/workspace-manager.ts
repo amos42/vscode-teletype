@@ -492,7 +492,7 @@ export default class WorkspaceManager {
         }
     }
 
-    private didChangeActiveTextEditor(editor?: vscode.TextEditor) {
+    public setActiveEditor(editor?: vscode.TextEditor) {
         if (editor) {
             const proxyObj = this.getProxyObjectByUri(editor.document.uri);
             if (proxyObj) {
@@ -501,6 +501,10 @@ export default class WorkspaceManager {
         } else {
 
         }
+    }
+
+    private didChangeActiveTextEditor(editor?: vscode.TextEditor) {
+        this.setActiveEditor(editor);
     }
 
     private didChangeVisibleTextEditors(editors?: vscode.TextEditor[]) {

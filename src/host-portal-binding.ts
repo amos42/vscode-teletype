@@ -63,6 +63,11 @@ export default class HostPortalBinding extends PortalBinding {
 
             vscode.commands.executeCommand('setContext', 'teletype.status.isShared', true);
 
+            this.changeActiveEditorEventListener = vscode.window.onDidChangeActiveTextEditor(this.didChangeActiveTextEditor.bind(this));
+            this.openDocumentEventListener = vscode.workspace.onDidOpenTextDocument(this.didOpenTextDocument.bind(this));
+            // this.closeDocumentEventListener = vscode.workspace.onDidCloseTextDocument(this.didCloseTextDocument.bind(this));
+
+            // 이미 열려 있는 문서들을 기본 등록한다. (단, VSCode가 한번도 활성화 된 적 없는 문서들은 목록에서 제외시켜 버린다.)
             vscode.workspace.textDocuments.forEach(async (document) => {
                 if (document.uri.scheme === 'file' && this.isWorkspaceFiles(document.uri.fsPath)) {
                     const bufferBinding = this.workspaceManager.findOrCreateBufferBindingForBuffer(document, this.portal);
@@ -71,10 +76,8 @@ export default class HostPortalBinding extends PortalBinding {
                     // this.workspaceManager.addHostTextDocument(document);
                 }
             });
-
-            this.changeActiveEditorEventListener = vscode.window.onDidChangeActiveTextEditor(this.didChangeActiveTextEditor.bind(this));
-            this.openDocumentEventListener = vscode.workspace.onDidOpenTextDocument(this.didOpenTextDocument.bind(this));
-            // this.closeDocumentEventListener = vscode.workspace.onDidCloseTextDocument(this.didCloseTextDocument.bind(this));
+            this.workspaceManager.applyShowingEditorsAsync(vscode.window.visibleTextEditors);
+            this.workspaceManager.setActiveEditor(vscode.window.activeTextEditor);
 
             // this.workspace.getElement().classList.add('teletype-Host');
             return true;
@@ -100,12 +103,13 @@ export default class HostPortalBinding extends PortalBinding {
         super.dispose();
     }
 
-    // // @override
-    // siteDidJoin (siteId: number) {
-    //   const site = this.portal?.getSiteIdentity(siteId);
-    //   this.notificationManager.addInfo(`@${site?.login} has joined your portal`);
-    //   this.emitter.emit('did-change', {type: 'join-portal', portal: this.portal});
-    // }
+    // @override
+    siteDidJoin (siteId: number) {
+        //   const site = this.portal?.getSiteIdentity(siteId);
+        //   this.notificationManager.addInfo(`@${site?.login} has joined your portal`);
+        //   this.emitter.emit('did-change', {type: 'join-portal', portal: this.portal});
+        super.siteDidJoin(siteId);
+    }
 
     // @override
     siteDidLeave(siteId: number) {

@@ -20,7 +20,6 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
     public bufferProxy!: BufferProxy;
     public portal!: Portal;
     public buffer?: vscode.TextDocument;
-    public pendingUpdates: any[];
     public filePath?: string;
     public fsFullPathUri?: vscode.Uri;
     disposed: boolean;
@@ -32,33 +31,27 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
     private fs!: vscode.FileSystemProvider;
     private emitter: EventEmitter;
     private didBeforeDispose: ((bufferBinding: BufferBinding) => void) | undefined;
-    private pendingChanges: vscode.TextDocumentContentChangeEvent[];
+    private pendingUpdates: any[];
+    private pendingChangeEvents: vscode.TextDocumentContentChangeEvent[];
 
     constructor(fs: vscode.FileSystemProvider, filePath: string | undefined, bufferProxy: BufferProxy, portal: Portal, buffer: vscode.TextDocument | undefined, didDispose: Function = doNothing, didBeforeDispose?: (bufferBinding: BufferBinding) => void) {
         super(didDispose);
-
         this.didBeforeDispose = didBeforeDispose;
 
         this.fs = fs;
         this.filePath = filePath;
-        this.buffer = buffer;
-        // this.bufferProxy = bufferProxy;
 
         this.portal = portal;
         // this.title = title ?? uri;
-        this.pendingChanges = [];
         this.disposed = false;
         this.disableHistory = false;
-        if (bufferProxy.isHost) {
-            // this.subscriptions.add(buffer.onDidChangePath(this.relayURIChange.bind(this)));
-        }
+        this.pendingChangeEvents = [];
         this.pendingUpdates = [];
 
         this.emitter = new EventEmitter();
 
+        this.setBuffer(buffer);
         this.setBufferProxy(bufferProxy);
-
-        this.monkeyPatchBufferMethods(this.buffer);
     }
 
     // @override
@@ -77,14 +70,7 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
             // }
             if (this.bufferDestroySubscription) { this.bufferDestroySubscription.dispose(); }
             if (this.remoteFile) { this.remoteFile.dispose(); }
-            // this.emitDidDispose();
-
-            // // teletype-client에서 자동으로 해 주지 않아서 수동으로 연결 된 editorProxy들을 찾아서 청소해 줘야 한다.
-            // this.portal.editorProxiesById.forEach(editorProxy => {
-            //   if(editorProxy.bufferProxy === this.bufferProxy) {
-            //     editorProxy.dispose();
-            //   }
-            // });
+            this.emitter.removeAllListeners();
 
             this.disposed = true;
         }
@@ -109,20 +95,28 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
 
     setBuffer(buffer: vscode.TextDocument | undefined) {
         this.buffer = buffer;
+        if (buffer) {
+            this.monkeyPatchBufferMethods(buffer);
+        }
     }
 
     setBufferProxy(bufferProxy: BufferProxy) {
         this.bufferProxy = bufferProxy;
+        if (!bufferProxy) { return; }
 
         // VSCode의 TextDocument는 History 기능이 없다.
         // this.buffer?.setHistoryProvider(this);
 
-        while (this.pendingChanges.length > 0) {
-            this.pushChange(this.pendingChanges.shift());
+        while (this.pendingChangeEvents.length > 0) {
+            this.pushChangeEvent(this.pendingChangeEvents.shift());
         }
         if (!this.bufferProxy.isHost) {
             this.remoteFile = new RemoteFile(bufferProxy.uri);
             // this.buffer?.setFile(this.remoteFile);
+        }
+
+        if (bufferProxy.isHost) {
+            // this.subscriptions.add(buffer.onDidChangePath(this.relayURIChange.bind(this)));
         }
 
         // this.bufferDestroySubscription = this.buffer?.onDidDestroy(() => {
@@ -134,8 +128,8 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
         // });
     }
 
-    private monkeyPatchBufferMethods(buffer: any) {
-        // vscode의 document는 extensible하지 않기 때문에 monkey patch가 안 된다.
+    private monkeyPatchBufferMethods(buffer: vscode.TextDocument) {
+        // VSCode의 TextDocument는 extensible하지 않기 때문에 monkey patch가 안 된다.
 
     }
 
@@ -150,7 +144,8 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
         this.disableHistory = false;
     }
 
-    pushChange(change: vscode.TextDocumentContentChangeEvent | undefined) {
+    // 아직 bufferProxy가 지정되기 전이라면 잠시 버퍼에 쌓아둔다.
+    pushChangeEvent(change: vscode.TextDocumentContentChangeEvent | undefined) {
         if (this.disableHistory) { return; }
         if (!change) { return; }
 
@@ -161,16 +156,20 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
                 change.text
             );
         } else {
-            this.pendingChanges.push(change);
+            this.pendingChangeEvents.push(change);
         }
     }
 
-    pushChanges(changes: vscode.TextDocumentContentChangeEvent[]) {
-        if (this.disableHistory) { return; }
+    // pushChangesEvent(changes: vscode.TextDocumentContentChangeEvent[]) {
+    //     if (this.disableHistory) { return; }
 
-        for (let i = changes.length - 1; i >= 0; i--) {
-            this.pushChange(changes[i]);
-        }
+    //     for (let i = changes.length - 1; i >= 0; i--) {
+    //         this.pushChangeEvent(changes[i]);
+    //     }
+    // }
+
+    public existsPendingUpdate() : Boolean {
+        return this.pendingUpdates?.length > 0;
     }
 
     public async applyUpdateAsync(editor: vscode.TextEditor) {
@@ -316,7 +315,9 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
 
     // @override
     didChangeURI(uri: string): void {
-        if (this.remoteFile) { this.remoteFile.setURI(uri); }
+        if (this.remoteFile) { 
+            this.remoteFile.setURI(uri); 
+        }
     }
 
     getBufferProxyURI() {

@@ -26,7 +26,7 @@ export default class EditorBinding extends vscode.Disposable implements IEditorD
     // public portal: Portal | undefined;
     private disposed: boolean = false;
     private emitter: EventEmitter;
-    private selectionsMarkerLayer: vscode.Selection[];
+    private selectionsMarkerLayer: readonly vscode.Selection[];
     // markerLayersBySiteId: Map<number, any>;
     // markersByLayerAndId: WeakMap<number, object>;
     private localSelectionMap: SelectionMap;
@@ -44,7 +44,7 @@ export default class EditorBinding extends vscode.Disposable implements IEditorD
     public pendingUpdates: any[];
     processOpen: boolean = false;
 
-    constructor(editor: vscode.TextEditor, bufferBinding: BufferBinding, title?: string, /*portal?: Portal,*/ didDispose: Function = doNothing) {
+    constructor(editor: vscode.TextEditor, bufferBinding: BufferBinding, title?: string, /*portal?: Portal,*/ didDispose: () => any = doNothing) {
         super(didDispose);
 
         this.editor = editor;

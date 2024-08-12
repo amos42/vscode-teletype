@@ -35,6 +35,16 @@ export default class WorkspaceManager {
 
     private emitter: EventEmitter;
 
+    public static isWorkspaceFiles(workspace: vscode.WorkspaceFolder, fsPath: string): boolean {
+        fsPath = path.normalize(fsPath);
+        if (!fs.existsSync(fsPath)) {
+            return false;
+        }
+        const parentPath = path.normalize(workspace.uri.fsPath);
+        const relPath = path.relative(workspace.uri.fsPath, fsPath);
+        return fsPath.startsWith(parentPath);
+    }
+
     constructor(public fs: vscode.FileSystemProvider, private notificationManager?: NotificationManager) {
         this.proxyObjectsByUri = new Map();
         this.editorBindingsByTextEditor = new Map();
@@ -356,7 +366,7 @@ export default class WorkspaceManager {
     }
 
     // 현재 활성화 된 editor들과 editorProxy를 연결시켜서 동기화시킨다.
-    async applyShowingEditorsAsync(editors: vscode.TextEditor[] | undefined = vscode.window.visibleTextEditors) {
+    async applyShowingEditorsAsync(editors: readonly vscode.TextEditor[] | undefined = vscode.window.visibleTextEditors) {
         if (editors) {
             let newList = new Map(this.editorBindingsByTextEditor);
             this.editorBindingsByTextEditor.clear();
@@ -507,7 +517,7 @@ export default class WorkspaceManager {
         this.setActiveEditor(editor);
     }
 
-    private didChangeVisibleTextEditors(editors?: vscode.TextEditor[]) {
+    private didChangeVisibleTextEditors(editors?: readonly vscode.TextEditor[]) {
         this.applyShowingEditorsAsync(editors);
     }
 

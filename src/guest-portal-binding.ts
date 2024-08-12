@@ -15,7 +15,7 @@ export default class GuestPortalBinding extends PortalBinding {
     // sitePositionsComponent: SitePositionsComponent;
     // public newActivePaneItem: any;
 
-    constructor(client: TeletypeClient, portalId: string, notificationManager: NotificationManager, workspaceManager: WorkspaceManager, didDispose: Function) {
+    constructor(client: TeletypeClient, portalId: string, notificationManager: NotificationManager, workspaceManager: WorkspaceManager, didDispose: () => any) {
         super(client, workspaceManager, notificationManager, didDispose);
 
         this.portalId = portalId;

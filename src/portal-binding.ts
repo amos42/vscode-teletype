@@ -15,7 +15,7 @@ export class PortalBinding extends vscode.Disposable implements IPortalBinding, 
     emitter: EventEmitter;
     private resIdxTable: Array<Number | undefined>;
 
-    constructor(public client: TeletypeClient, public workspaceManager: WorkspaceManager, public notificationManager: NotificationManager, didDispose: Function) {
+    constructor(public client: TeletypeClient, public workspaceManager: WorkspaceManager, public notificationManager: NotificationManager, didDispose: () => any) {
         super(didDispose);
 
         this.emitter = new EventEmitter();

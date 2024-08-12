@@ -8,8 +8,6 @@ import { getPortalURI } from './uri-helpers';
 import NotificationManager from './notification-manager';
 import WorkspaceManager from './workspace-manager';
 import { PortalBinding } from './portal-binding';
-import * as path from 'path';
-import * as fs from 'fs';
 
 
 export default class HostPortalBinding extends PortalBinding {
@@ -21,7 +19,7 @@ export default class HostPortalBinding extends PortalBinding {
     openDocumentEventListener?: vscode.Disposable;
     // sitePositionsComponent: SitePositionsComponent | undefined;
 
-    constructor(client: TeletypeClient, workspace: vscode.WorkspaceFolder, notificationManager: NotificationManager, workspaceManager: WorkspaceManager, didDispose: Function) {
+    constructor(client: TeletypeClient, workspace: vscode.WorkspaceFolder, notificationManager: NotificationManager, workspaceManager: WorkspaceManager, didDispose: () => any) {
         super(client, workspaceManager, notificationManager, didDispose);
 
         this.workspace = workspace;
@@ -122,13 +120,7 @@ export default class HostPortalBinding extends PortalBinding {
     }
 
     isWorkspaceFiles(fsPath: string): boolean {
-        fsPath = path.normalize(fsPath);
-        if (!fs.existsSync(fsPath)) {
-            return false;
-        }
-        const parentPath = path.normalize(this.workspace.uri.fsPath);
-        const relPath = path.relative(this.workspace.uri.fsPath, fsPath);
-        return fsPath.startsWith(parentPath);
+        return WorkspaceManager.isWorkspaceFiles(this.workspace, fsPath);
     }
 
     // @override

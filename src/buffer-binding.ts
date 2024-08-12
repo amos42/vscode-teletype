@@ -34,7 +34,7 @@ export default class BufferBinding extends vscode.Disposable implements IBufferD
     private pendingUpdates: any[];
     private pendingChangeEvents: vscode.TextDocumentContentChangeEvent[];
 
-    constructor(fs: vscode.FileSystemProvider, filePath: string | undefined, bufferProxy: BufferProxy, portal: Portal, buffer: vscode.TextDocument | undefined, didDispose: Function = doNothing, didBeforeDispose?: (bufferBinding: BufferBinding) => void) {
+    constructor(fs: vscode.FileSystemProvider, filePath: string | undefined, bufferProxy: BufferProxy, portal: Portal, buffer: vscode.TextDocument | undefined, didDispose: () => any = doNothing, didBeforeDispose?: (bufferBinding: BufferBinding) => void) {
         super(didDispose);
         this.didBeforeDispose = didBeforeDispose;
 

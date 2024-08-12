@@ -3,14 +3,14 @@
     "displayName": "vscode-teletype",
     "description": "VS Code Teletype extension for Creating CoEditing skeleton for Eclipse Che and Theia",
     "types": "dist/index.d.ts",
-    "publisher": "redhat",
+    "publisher": "amos42",
     "version": "0.0.1",
     "repository": {
         "type": "git",
         "url": "https://github.com/amos42/vscode-teletype.git"
     },
     "engines": {
-        "vscode": "^1.50.0"
+        "vscode": "^1.61.0"
     },
     "enabledApiProposals": [
         "contribViewsWelcome"
@@ -250,30 +250,38 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "npm run compile && node ./node_modules/vscode/bin/test",
-        "package": "vsce package"
+        "vscode:prepublish": "npm run package",
+        "compile": "npm run check-types && npm run lint && node esbuild.js",
+        "watch": "npm-run-all -p watch:*",
+        "watch:esbuild": "node esbuild.js --watch",
+        "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+        "package": "npm run check-types && npm run lint && node esbuild.js --production",
+        "compile-tests": "tsc -p . --outDir out",
+        "watch-tests": "tsc -p . -w --outDir out",
+        "pretest": "npm run compile-tests && npm run compile && npm run lint",
+        "check-types": "tsc --noEmit",
+        "lint": "eslint src --ext ts"
     },
     "devDependencies": {
+        "@atom/teletype-client": "github:amos42/teletype-client.git#v0.38.5",
+        "@typescript-eslint/eslint-plugin": "^7.14.1",
+        "@typescript-eslint/parser": "^7.11.0",
+        "@mapbox/node-pre-gyp": "^1.0.10",
+        "@types/event-kit": "^2.4.1",
         "@types/mocha": "^2.2.42",
         "@types/node": "^10.17.24",
-        "@types/event-kit": "^2.4.1",
-        "@mapbox/node-pre-gyp": "^1.0.10",
+        "@types/vscode": "^1.61.0",
+        "@vscode/vsce": "^2.31.0",
         "deep-equal": "^1.1.1",
         "google-protobuf": "^3.12.2",
         "source-map-loader": "^0.2.4",
-        "typescript": "^4.8.4",
-        "tslint": "^5.20.1",
-        "vsce": "<2.0.0",
-        "vscode": "^1.1.37",
-        "webpack": "^4.43.0",
-        "webpack-cli": "^4.9.2"
+        "typescript": "^5.5.3",
+        "webpack": "^5.93.0",
+        "webpack-cli": "^4.9.2",
+        "esbuild": "^0.21.5",
+        "eslint": "^8.57.0"
     },
     "dependencies": {
-        "@atom/teletype-client": "github:amos42/teletype-client.git#v0.38.5",
         "domexception": "^4.0.0",
         "keytar": "^7.9.0",
         "memfs": "^3.4.7",
@@ -281,5 +289,8 @@
         "node-fetch": "^2.6.7",
         "wrtc": "^0.4.7"
     },
-    "bundledDependencies": []
+    "bundledDependencies": [
+        "@mapbox/node-pre-gyp"
+    ],
+    "_moduleAliases": {}
 }

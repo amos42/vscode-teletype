@@ -106,7 +106,7 @@ export async function activate(context: vscode.ExtensionContext) {
             notificationManager.addError("No Token has been entered. Please try again");
         } else {
             notificationManager.addTrace('Trying to SignIn...');
-            if (await (globalAny.teletype as TeletypePackage).signIn(token)) {
+            if (await (globalAny.teletype as TeletypePackage).signInAsync(token)) {
                 vscode.commands.executeCommand('setContext', 'teletype.status.isSignin', true);
                 notificationManager.addInfo("SignIn successeded.");
             } else {
@@ -118,7 +118,7 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('extension.teletype-signout', async () => {
-        (globalAny.teletype as TeletypePackage).signOut();
+        (globalAny.teletype as TeletypePackage).signOutAsync();
         vscode.commands.executeCommand('setContext', 'teletype.status.isSignin', false);
     });
     context.subscriptions.push(disposable);
